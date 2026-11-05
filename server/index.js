@@ -63,7 +63,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/topics', require('./routes/topics'));
 app.use('/api/quizzes', require('./routes/quizzes'));
-app.use('/api/attempts', require('./routes/attempts'));
+app.use('/api/attempts', require('./routes/attempts').router);
 app.use('/api/analytics', require('./routes/analytics'));
 
 // Serve frontend in production

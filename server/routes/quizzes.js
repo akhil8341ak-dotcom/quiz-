@@ -5,6 +5,7 @@ const Question = require('../models/Question');
 const { protect } = require('../middleware/auth');
 const { validate, objectIdSchema } = require('../middleware/validate');
 const { asyncHandler } = require('../middleware/error');
+const { submitAttemptHandler, submitAttemptSchema } = require('./attempts');
 
 const router = express.Router();
 
@@ -249,6 +250,11 @@ router.delete(
     res.json({ message: 'Quiz deleted successfully' });
   })
 );
+
+// @route   POST /api/quizzes/:id/attempts
+// @desc    Submit attempt for quiz, evaluate on server
+// @access  Private
+router.post('/:id/attempts', protect, validate(submitAttemptSchema), submitAttemptHandler);
 
 module.exports = router;
 
