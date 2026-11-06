@@ -2,124 +2,126 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #6C47FF;
+  --color-primary-dark: #5835E5;
+  --color-electric: #3B82F6;
+  --color-pink: #FF4D8D;
+  --color-yellow: #FFC83D;
+  --color-mint: #14D9B0;
+  
+  --diff-easy: #14D9B0;
+  --diff-medium: #FFC83D;
+  --diff-hard: #FF4D8D;
+
+  --status-pending: #F59E0B;
+  --status-approved: #10B981;
+  --status-rejected: #EF4444;
+
+  --bg-app: #F7F6FF;
+  --text-main: #1E1B3A;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(226, 222, 248, 0.8);
+}
+
+.dark {
+  --bg-app: #0F0D23;
+  --text-main: #F3F1FD;
+  --card-bg: rgba(31, 26, 69, 0.75);
+  --card-border: rgba(49, 44, 94, 0.7);
+}
+
 @layer base {
-  :root {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    overflow-x: hidden;
+    min-height: 100vh;
   }
 
-  body {
-    background-color: #0b0f19;
-    color: #0f172a;
-    min-height: 100vh;
-    overflow-x: hidden;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
   }
 }
 
-/* Vibrant Aurora Mesh Background */
-.aurora-bg {
+/* Playful gamified background blobs */
+.game-blob-bg {
   position: fixed;
   inset: 0;
   z-index: -10;
-  background-color: #f8fafc;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 55%),
-    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.10) 0px, transparent 55%),
-    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.14) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(244, 63, 94, 0.10) 0px, transparent 55%);
-}
-
-/* Floating ambient energetic orbs */
-@keyframes floatSlow {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -25px) scale(1.05); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.04); }
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-.animate-float {
-  animation: floatSlow 12s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulseGlow 3s ease-in-out infinite;
-}
-
-.shimmer-effect {
-  position: relative;
+  pointer-events: none;
   overflow: hidden;
 }
-.shimmer-effect::after {
-  content: '';
+
+.game-blob {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  animation: shimmer 3s infinite;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.16;
+  transition: opacity 0.5s ease;
 }
 
-/* Glassmorphism Classes */
-.glass-panel-vibrant {
-  background: rgba(255, 255, 255, 0.85);
+.dark .game-blob {
+  opacity: 0.22;
+  filter: blur(100px);
+}
+
+/* Glassmorphism token utility */
+.glass-effect {
+  background: var(--card-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--card-border);
 }
 
-.glass-card-energetic {
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.05);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Primary playful gradient button */
+.btn-gradient-primary {
+  background: linear-gradient(135deg, #6C47FF 0%, #3B82F6 100%);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 8px 24px -4px rgba(108, 71, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-card-energetic:hover {
-  transform: translateY(-4px);
-  border-color: rgba(129, 140, 248, 0.8);
-  box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.15), 0 8px 16px -4px rgba(14, 165, 233, 0.1);
-}
-
-/* Vibrant Button Glow */
-.btn-vibrant-primary {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
-  color: #ffffff;
-  box-shadow: 0 8px 24px -4px rgba(79, 70, 229, 0.45);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.btn-vibrant-primary:hover {
+.btn-gradient-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -4px rgba(124, 58, 237, 0.6);
-  filter: brightness(1.08);
+  box-shadow: 0 12px 30px -4px rgba(108, 71, 255, 0.55);
+  filter: brightness(1.05);
 }
 
-.btn-vibrant-rose {
-  background: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb7185 100%);
-  color: #ffffff;
-  box-shadow: 0 8px 24px -4px rgba(225, 29, 72, 0.4);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+.btn-gradient-primary:active {
+  transform: translateY(0);
 }
 
-.btn-vibrant-rose:hover {
+/* Pink action button */
+.btn-gradient-pink {
+  background: linear-gradient(135deg, #FF4D8D 0%, #FF6B6B 100%);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 8px 24px -4px rgba(255, 77, 141, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-gradient-pink:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -4px rgba(225, 29, 72, 0.6);
-  filter: brightness(1.08);
+  box-shadow: 0 12px 30px -4px rgba(255, 77, 141, 0.55);
 }
 
-/* Accessibility: Min 44px tap target */
+/* Mint action button */
+.btn-gradient-mint {
+  background: linear-gradient(135deg, #14D9B0 0%, #06B6D4 100%);
+  color: #073B3A;
+  font-weight: 800;
+  box-shadow: 0 8px 24px -4px rgba(20, 217, 176, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-gradient-mint:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -4px rgba(20, 217, 176, 0.55);
+}
+
+/* Accessibility: 44px min tap target */
 .tap-target {
   min-height: 44px;
   min-width: 44px;
@@ -128,7 +130,43 @@
   justify-content: center;
 }
 
-/* Custom subtle scrollbar */
+/* Shimmer Light Bar */
+.shimmer-badge {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-badge::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: badgeShimmer 2.8s infinite;
+}
+
+@keyframes badgeShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+/* Skeleton Loading Shimmer */
+.skeleton-box {
+  background: linear-gradient(90deg, #EDEAFE 25%, #F5F3FF 50%, #EDEAFE 75%);
+  background-size: 200% 100%;
+  animation: skeletonWave 1.5s infinite;
+}
+
+.dark .skeleton-box {
+  background: linear-gradient(90deg, #1A1638 25%, #25204C 50%, #1A1638 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeletonWave {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Smooth custom scrollbars */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
@@ -137,9 +175,19 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #C4B5FD;
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #818cf8;
+.dark ::-webkit-scrollbar-thumb {
+  background: #3B336A;
+}
+
+/* Respect user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
