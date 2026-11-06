@@ -38,3 +38,4 @@ export const StatSkeleton = () => (
 );
 
 export default Skeleton;
+

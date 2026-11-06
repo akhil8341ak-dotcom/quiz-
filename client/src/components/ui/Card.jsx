@@ -76,3 +76,4 @@ Card.Content = CardContent;
 Card.Footer = CardFooter;
 
 export default Card;
+

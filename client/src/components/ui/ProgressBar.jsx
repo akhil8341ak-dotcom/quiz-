@@ -42,3 +42,4 @@ export const ProgressBar = ({
 };
 
 export default ProgressBar;
+
