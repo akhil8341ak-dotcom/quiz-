@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import DifficultyBadge from '../components/DifficultyBadge';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { CustomDropdown } from '../components/ui/CustomDropdown';
 import {
   Sparkles,
   Layers,
   CheckSquare,
   Square,
-  Loader2,
   Play,
   ArrowRight,
   BookOpen,
@@ -127,29 +130,36 @@ const CreateQuiz = () => {
     }
   };
 
+  const difficultyOptions = [
+    { value: 'all', label: 'Mixed (All Difficulties)' },
+    { value: 'easy', label: 'Easy (Foundational)' },
+    { value: 'medium', label: 'Medium (Standard)' },
+    { value: 'hard', label: 'Hard (Advanced)' },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
           Create a Quiz
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-sm text-slate-500 dark:text-dark-textMuted mt-1">
           Auto-generate an adaptive quiz by topic and difficulty, or hand-pick specific questions from the question bank
         </p>
       </div>
 
       {/* Mode Switcher Tabs */}
-      <div className="grid grid-cols-2 gap-3 p-1.5 bg-slate-200/80 rounded-2xl max-w-md">
+      <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-200/70 dark:bg-dark-card rounded-2xl max-w-md border border-slate-200 dark:border-dark-border">
         <button
           type="button"
           onClick={() => setMode('auto')}
           className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition tap-target ${
             mode === 'auto'
-              ? 'bg-white text-blue-700 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-white dark:bg-dark-surface text-brand-600 dark:text-brand-300 shadow-sm'
+              : 'text-slate-600 dark:text-dark-textMuted hover:text-slate-900 dark:hover:text-white'
           }`}
         >
-          <Sparkles className="w-4 h-4 text-amber-500" />
+          <Sparkles className="w-4 h-4 text-brand-yellow" />
           Auto-Generate
         </button>
         <button
@@ -157,20 +167,20 @@ const CreateQuiz = () => {
           onClick={() => setMode('manual')}
           className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition tap-target ${
             mode === 'manual'
-              ? 'bg-white text-blue-700 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-white dark:bg-dark-surface text-brand-600 dark:text-brand-300 shadow-sm'
+              : 'text-slate-600 dark:text-dark-textMuted hover:text-slate-900 dark:hover:text-white'
           }`}
         >
-          <Layers className="w-4 h-4 text-indigo-500" />
+          <Layers className="w-4 h-4 text-brand-electric" />
           Hand-Pick Questions
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title & Description Card */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <Card className="p-6 sm:p-8 space-y-4">
           <div>
-            <label className="block text-sm font-bold text-slate-800 mb-1.5">
+            <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5">
               Quiz Title <span className="text-rose-500">*</span>
             </label>
             <input
@@ -178,12 +188,12 @@ const CreateQuiz = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Operating Systems & Memory Management Sprint"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 font-medium"
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-800 mb-1.5">
+            <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5">
               Description (Optional)
             </label>
             <textarea
@@ -191,16 +201,16 @@ const CreateQuiz = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What topics or concepts does this test cover?"
-              className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+              className="w-full p-3.5 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500"
             />
           </div>
-        </div>
+        </Card>
 
         {/* Mode 1: Auto-generate Options */}
         {mode === 'auto' && (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          <Card className="p-6 sm:p-8 space-y-6">
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-2">
+              <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">
                 Select Topics (Optional — Leave blank to sample across all topics)
               </label>
               <div className="flex flex-wrap gap-2">
@@ -213,8 +223,8 @@ const CreateQuiz = () => {
                       onClick={() => toggleTopic(t.topic)}
                       className={`tap-target px-3.5 py-2 rounded-xl text-xs font-bold transition border ${
                         isSelected
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                          : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                          ? 'bg-brand-500 text-white border-brand-500 shadow-sm'
+                          : 'bg-slate-50 dark:bg-dark-card hover:bg-slate-100 dark:hover:bg-dark-cardHover text-slate-700 dark:text-slate-300 border-slate-200 dark:border-dark-border'
                       }`}
                     >
                       {t.topicDisplay} ({t.total})
@@ -226,118 +236,129 @@ const CreateQuiz = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                  Target Difficulty
-                </label>
-                <select
+                <CustomDropdown
+                  label="Target Difficulty"
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                >
-                  <option value="all">Mixed (All Difficulties)</option>
-                  <option value="easy">Easy (Foundational)</option>
-                  <option value="medium">Medium (Standard)</option>
-                  <option value="hard">Hard (Advanced)</option>
-                </select>
+                  options={difficultyOptions}
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                  Number of Questions: <span className="text-blue-600">{count}</span>
+                <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+                  Number of Questions: <span className="text-brand-500">{count}</span>
                 </label>
                 <input
                   type="range"
                   min={3}
                   max={20}
-                  step={1}
                   value={count}
                   onChange={(e) => setCount(e.target.value)}
-                  className="w-full accent-blue-600 mt-2 cursor-pointer"
+                  className="w-full h-2 bg-slate-200 dark:bg-dark-card rounded-lg appearance-none cursor-pointer accent-brand-500 mt-3"
                 />
-                <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                  <span>3 questions (Quick check)</span>
-                  <span>20 questions (Comprehensive)</span>
+                <div className="flex justify-between text-[11px] text-slate-400 dark:text-dark-textMuted mt-1 font-semibold">
+                  <span>3 min</span>
+                  <span>10 standard</span>
+                  <span>20 marathon</span>
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         )}
 
-        {/* Mode 2: Manual Question Picker */}
+        {/* Mode 2: Manual Selection Table */}
         {mode === 'manual' && (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <Card className="p-6 sm:p-8 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-slate-900 text-base">Select Questions</h3>
-                <p className="text-xs text-slate-500">
-                  Selected: <span className="font-bold text-blue-600">{selectedQuestionIds.length}</span> questions
+                <h3 className="font-heading font-bold text-slate-900 dark:text-white text-base">
+                  Choose Questions from Bank
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-dark-textMuted">
+                  Selected: {selectedQuestionIds.length} questions
                 </p>
               </div>
+
+              {availableQuestions.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedQuestionIds.length === availableQuestions.length) {
+                      setSelectedQuestionIds([]);
+                    } else {
+                      setSelectedQuestionIds(availableQuestions.map((q) => q._id));
+                    }
+                  }}
+                  className="text-xs font-bold text-brand-500 hover:underline tap-target"
+                >
+                  {selectedQuestionIds.length === availableQuestions.length
+                    ? 'Deselect All'
+                    : 'Select All'}
+                </button>
+              )}
             </div>
 
             {loadingQuestions ? (
-              <div className="py-12 flex justify-center">
-                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+              <div className="py-12 text-center text-slate-500">
+                <span className="text-xs font-bold">Loading available questions...</span>
+              </div>
+            ) : availableQuestions.length === 0 ? (
+              <div className="py-8 text-center text-slate-400">
+                No approved questions found in the bank.
               </div>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+              <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
                 {availableQuestions.map((q) => {
                   const isChecked = selectedQuestionIds.includes(q._id);
                   return (
                     <div
                       key={q._id}
                       onClick={() => toggleQuestionSelection(q._id)}
-                      className={`p-3.5 rounded-2xl border cursor-pointer transition flex items-start gap-3 ${
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 ${
                         isChecked
-                          ? 'bg-blue-50/70 border-blue-300'
-                          : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                          ? 'bg-brand-50/70 dark:bg-brand-500/20 border-brand-500 shadow-xs'
+                          : 'bg-slate-50 dark:bg-dark-card border-slate-200 dark:border-dark-border hover:bg-slate-100/70'
                       }`}
                     >
-                      <div className="mt-0.5 text-blue-600">
+                      <div className="pt-0.5 text-brand-500">
                         {isChecked ? (
-                          <CheckSquare className="w-5 h-5 fill-blue-600 text-white" />
+                          <CheckSquare className="w-5 h-5 text-brand-500" />
                         ) : (
-                          <Square className="w-5 h-5 text-slate-300" />
+                          <Square className="w-5 h-5 text-slate-400" />
                         )}
                       </div>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-bold bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-600">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-[10px] font-bold bg-white dark:bg-dark-surface px-2 py-0.5 rounded-md border text-slate-600 dark:text-slate-300">
                             {q.topicDisplay}
                           </span>
                           <DifficultyBadge difficulty={q.difficulty} />
                         </div>
-                        <p className="text-sm font-semibold text-slate-900">{q.text}</p>
+                        <p className="text-xs font-bold text-slate-800 dark:text-white leading-snug">
+                          {q.text}
+                        </p>
                       </div>
                     </div>
                   );
                 })}
               </div>
             )}
-          </div>
+          </Card>
         )}
 
-        <button
+        <Button
           type="submit"
           disabled={submitting}
-          className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition disabled:opacity-50 tap-target"
+          loading={submitting}
+          size="lg"
+          icon={<Play className="w-5 h-5 fill-current" />}
+          className="w-full"
         >
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Creating Quiz...
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4 fill-current" />
-              Create & Start Quiz
-            </>
-          )}
-        </button>
+          Generate & Start Quiz
+        </Button>
       </form>
     </div>
   );
 };
 
 export default CreateQuiz;
-

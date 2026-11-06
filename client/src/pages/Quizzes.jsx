@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { CardSkeleton } from '../components/ui/Skeleton';
+import { EmptyState } from '../components/ui/EmptyState';
 import {
   Sparkles,
   PlusCircle,
   Play,
-  HelpCircle,
   Trash2,
-  Loader2,
   BookOpen,
   Zap,
-  Flame,
 } from 'lucide-react';
 
 const Quizzes = () => {
@@ -51,48 +54,41 @@ const Quizzes = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <span className="text-xs font-black uppercase tracking-wider text-indigo-600 block mb-1">
+          <span className="text-xs font-black uppercase tracking-wider text-brand-500 block mb-1">
             Practice Library
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
             Quizzes & Practice Tests
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-dark-textMuted mt-1">
             Choose from peer-created quizzes or generate an instant test customized by topic and difficulty
           </p>
         </div>
-        <Link
-          to="/create-quiz"
-          className="tap-target px-5 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-500/25 inline-flex items-center gap-2 self-start transition hover:-translate-y-0.5"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Create New Quiz
+        <Link to="/create-quiz">
+          <Button variant="primary" icon={<PlusCircle className="w-4 h-4" />}>
+            Create New Quiz
+          </Button>
         </Link>
       </div>
 
       {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
-          <p className="text-xs font-black uppercase tracking-wider text-slate-500">Loading quiz bank...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       ) : quizzes.length === 0 ? (
-        <div className="bg-white/90 p-12 text-center rounded-3xl border border-slate-200 text-slate-500">
-          <Sparkles className="w-12 h-12 mx-auto text-amber-400 mb-2" />
-          <p className="font-bold text-base text-slate-700">No quizzes available yet</p>
-          <p className="text-xs text-slate-400 mt-1">
-            Create an auto-generated or hand-picked quiz to start practicing!
-          </p>
-          <Link
-            to="/create-quiz"
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-bold rounded-xl tap-target shadow-md shadow-indigo-500/20"
-          >
-            <PlusCircle className="w-3.5 h-3.5" /> Build a Quiz
-          </Link>
-        </div>
+        <EmptyState
+          icon="✨"
+          title="No quizzes available yet"
+          description="Create an auto-generated or hand-picked quiz to start practicing and testing your knowledge!"
+          actionLabel="Build a Quiz"
+          onAction={() => navigate('/create-quiz')}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quizzes.map((quiz) => {
@@ -100,19 +96,20 @@ const Quizzes = () => {
             const canDelete = isOwner || isModerator;
 
             return (
-              <div
+              <Card
                 key={quiz._id}
-                className="glass-card-energetic p-6 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col justify-between"
+                hover
+                className="flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <span className="text-xs font-black bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700 border border-indigo-200/60 px-3 py-1 rounded-xl shadow-xs">
+                    <span className="text-xs font-black bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-500/20 dark:to-indigo-500/20 text-brand-600 dark:text-brand-300 border border-brand-200/60 dark:border-brand-500/30 px-3 py-1 rounded-xl shadow-xs">
                       {quiz.questionCount} Questions
                     </span>
                     {canDelete && (
                       <button
                         onClick={() => handleDeleteQuiz(quiz._id)}
-                        className="text-slate-400 hover:text-rose-600 p-1.5 rounded-xl hover:bg-rose-50 transition"
+                        className="text-slate-400 hover:text-rose-500 p-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/30 transition tap-target"
                         title="Delete quiz"
                         aria-label="Delete quiz"
                       >
@@ -121,10 +118,10 @@ const Quizzes = () => {
                     )}
                   </div>
 
-                  <h3 className="font-black text-slate-900 text-base mb-1.5 leading-snug tracking-tight">
+                  <h3 className="font-heading font-black text-slate-900 dark:text-white text-base mb-1.5 leading-snug tracking-tight">
                     {quiz.title}
                   </h3>
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-4 font-medium">
+                  <p className="text-xs text-slate-500 dark:text-dark-textMuted line-clamp-2 mb-4 font-medium">
                     {quiz.description || 'Custom generated practice quiz.'}
                   </p>
 
@@ -134,7 +131,7 @@ const Quizzes = () => {
                       {quiz.topics.map((t, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-lg capitalize border border-slate-200/60"
+                          className="px-2.5 py-0.5 bg-slate-100 dark:bg-dark-card text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-lg capitalize border border-slate-200/60 dark:border-dark-border"
                         >
                           {t}
                         </span>
@@ -143,18 +140,21 @@ const Quizzes = () => {
                   )}
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 font-medium truncate max-w-[140px]">
+                <div className="pt-4 border-t border-slate-100 dark:border-dark-border flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400 dark:text-dark-textMuted font-medium truncate max-w-[140px]">
                     By {quiz.createdBy?.name || 'Faculty / Peer'}
                   </span>
-                  <Link
-                    to={`/take-quiz/${quiz._id}`}
-                    className="tap-target px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-xs rounded-xl shadow-md shadow-indigo-600/20 inline-flex items-center gap-1.5 transition hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" /> Take Quiz
+                  <Link to={`/take-quiz/${quiz._id}`}>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      icon={<Play className="w-3.5 h-3.5 fill-current" />}
+                    >
+                      Take Quiz
+                    </Button>
                   </Link>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

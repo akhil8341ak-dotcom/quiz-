@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import DifficultyBadge from '../components/DifficultyBadge';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Modal } from '../components/ui/Modal';
+import { CustomDropdown } from '../components/ui/CustomDropdown';
+import { CardSkeleton } from '../components/ui/Skeleton';
+import { EmptyState } from '../components/ui/EmptyState';
 import {
   ShieldCheck,
   Check,
   X,
   Edit3,
   MessageSquare,
-  Loader2,
   Clock,
   Sparkles,
 } from 'lucide-react';
@@ -77,253 +84,283 @@ const ModerationQueue = () => {
     }
   };
 
+  const difficultyOptions = [
+    { value: 'easy', label: 'Easy' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'hard', label: 'Hard' },
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 bg-purple-100 text-purple-800 text-xs font-extrabold rounded-md uppercase tracking-wider">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="px-3 py-1 bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-black rounded-full uppercase tracking-wider border border-purple-200 dark:border-purple-800">
               Moderator Portal
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
             Moderation Queue
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Review student submissions, edit for clarity or accuracy, and approve or reject with notes
+          <p className="text-sm text-slate-500 dark:text-dark-textMuted mt-1">
+            Review student submissions, edit for clarity or accuracy, and approve or reject with feedback
           </p>
         </div>
         <div className="text-right">
-          <span className="text-2xl font-black text-purple-700">{questions.length}</span>
-          <span className="block text-xs font-semibold text-slate-500">Pending Review</span>
+          <span className="text-3xl font-heading font-black text-brand-pink">
+            {questions.length}
+          </span>
+          <span className="block text-xs font-bold text-slate-500 dark:text-dark-textMuted">
+            Pending Questions
+          </span>
         </div>
       </div>
 
       {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-3" />
-          <p className="text-sm font-semibold text-slate-500">Loading pending questions...</p>
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       ) : questions.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-3xl border border-slate-200 text-slate-500">
-          <ShieldCheck className="w-12 h-12 mx-auto text-emerald-500 mb-2" />
-          <p className="font-bold text-base text-slate-800">Queue is completely empty!</p>
-          <p className="text-xs text-slate-400 mt-1">
-            All submitted questions have been reviewed and moderated. Great job!
-          </p>
-        </div>
+        <EmptyState
+          icon="🛡️"
+          title="Moderation queue is empty!"
+          description="All student submitted questions have been reviewed and moderated. Excellent work maintaining bank quality!"
+        />
       ) : (
         <div className="space-y-6">
           {questions.map((q) => {
             const isActing = actingId === q._id;
 
             return (
-              <div
-                key={q._id}
-                className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-extrabold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg">
+              <Card key={q._id} className="p-6 sm:p-7 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-dark-border pb-4">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="px-3 py-1 bg-brand-50 dark:bg-brand-500/20 text-brand-600 dark:text-brand-300 rounded-xl text-xs font-bold">
                       {q.topicDisplay}
                     </span>
                     <DifficultyBadge difficulty={q.difficulty} />
-                    <span className="text-xs text-slate-400">
-                      Submitted by <strong className="text-slate-700">{q.createdBy?.name}</strong> (
-                      {q.createdBy?.email})
+                    <span className="text-xs text-slate-400 dark:text-dark-textMuted">
+                      Submitted by <strong className="text-slate-700 dark:text-slate-300">{q.submittedBy?.name || 'Anonymous Student'}</strong> ({q.submittedBy?.email || 'N/A'})
                     </span>
                   </div>
-                  <button
+
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => setEditingQuestion({ ...q })}
-                    className="tap-target px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold self-start sm:self-auto flex items-center gap-1.5 transition"
+                    icon={<Edit3 className="w-3.5 h-3.5 text-brand-500" />}
                   >
-                    <Edit3 className="w-3.5 h-3.5" /> Inline Edit
-                  </button>
+                    Edit Before Review
+                  </Button>
                 </div>
 
-                <div className="space-y-3">
-                  <h3 className="font-bold text-slate-900 text-base">{q.text}</h3>
+                {/* Question Text */}
+                <h3 className="font-heading font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-relaxed">
+                  {q.text}
+                </h3>
 
-                  {/* Options */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    {q.options.map((opt, i) => (
+                {/* Options List */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {q.options.map((opt, idx) => {
+                    const isCorrect = idx === q.correctIndex;
+                    return (
                       <div
-                        key={i}
-                        className={`p-2.5 rounded-xl border ${
-                          q.correctIndex === i
-                            ? 'bg-emerald-50/80 border-emerald-300 text-emerald-900 font-bold'
-                            : 'bg-slate-50 border-slate-200 text-slate-700'
+                        key={idx}
+                        className={`p-3 rounded-2xl border text-xs font-medium flex items-center gap-2.5 transition ${
+                          isCorrect
+                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-brand-mint text-emerald-900 dark:text-emerald-300 font-bold'
+                            : 'bg-slate-50 dark:bg-dark-card border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-300'
                         }`}
                       >
-                        <span className="mr-2 font-bold">{String.fromCharCode(65 + i)}.</span>
-                        {opt}
-                        {q.correctIndex === i && (
-                          <span className="ml-2 text-emerald-700 font-extrabold text-[11px]">
-                            &bull; Correct Answer
+                        <span
+                          className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center shrink-0 ${
+                            isCorrect
+                              ? 'bg-brand-mint text-emerald-950 shadow-sm'
+                              : 'bg-white dark:bg-dark-surface border text-slate-500 dark:text-dark-textMuted'
+                          }`}
+                        >
+                          {String.fromCharCode(65 + idx)}
+                        </span>
+                        <span className="truncate">{opt}</span>
+                        {isCorrect && (
+                          <span className="text-[10px] uppercase font-black tracking-wider ml-auto text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded-md">
+                            Correct
                           </span>
                         )}
                       </div>
-                    ))}
-                  </div>
-
-                  {q.explanation && (
-                    <div className="p-3 bg-blue-50/60 rounded-xl text-xs text-blue-900 border border-blue-100">
-                      <span className="font-bold">Explanation: </span>
-                      {q.explanation}
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
 
-                {/* Moderation note input & action buttons */}
-                <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                {/* Explanation */}
+                {q.explanation && (
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-dark-card border border-slate-200/80 dark:border-dark-border text-xs text-slate-600 dark:text-slate-300">
+                    <strong className="text-slate-900 dark:text-white block mb-0.5">
+                      Provided Explanation:
+                    </strong>
+                    {q.explanation}
+                  </div>
+                )}
+
+                {/* Moderator Decision Controls */}
+                <div className="pt-4 border-t border-slate-100 dark:border-dark-border flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <div className="relative flex-1">
-                    <MessageSquare className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <MessageSquare className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
                       value={modNote[q._id] || ''}
                       onChange={(e) =>
                         setModNote({ ...modNote, [q._id]: e.target.value })
                       }
-                      placeholder="Add an optional feedback note for the submitter..."
-                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                      placeholder="Add an optional moderator feedback note for student..."
+                      className="w-full pl-10 pr-3 py-2 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                     />
                   </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      disabled={isActing}
+                      loading={isActing}
                       onClick={() => handleModerate(q._id, 'rejected')}
-                      disabled={isActing}
-                      className="tap-target px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition disabled:opacity-50"
+                      icon={<X className="w-4 h-4" />}
                     >
-                      <X className="w-4 h-4" /> Reject
-                    </button>
-                    <button
+                      Reject
+                    </Button>
+                    <Button
+                      variant="mint"
+                      size="sm"
+                      disabled={isActing}
+                      loading={isActing}
                       onClick={() => handleModerate(q._id, 'approved')}
-                      disabled={isActing}
-                      className="tap-target px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 flex items-center gap-1.5 transition disabled:opacity-50"
+                      icon={<Check className="w-4 h-4" />}
                     >
-                      <Check className="w-4 h-4" /> Approve
-                    </button>
+                      Approve & Publish
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       )}
 
-      {/* Inline Edit Modal */}
-      {editingQuestion && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white max-w-2xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">
-              Moderator Inline Edit
-            </h3>
+      {/* Edit Question Modal */}
+      <Modal
+        isOpen={Boolean(editingQuestion)}
+        onClose={() => setEditingQuestion(null)}
+        title="Edit Submission Before Deciding"
+        maxWidth="max-w-2xl"
+      >
+        {editingQuestion && (
+          <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Question Text
+              </label>
+              <textarea
+                rows={3}
+                value={editingQuestion.text}
+                onChange={(e) =>
+                  setEditingQuestion({ ...editingQuestion, text: e.target.value })
+                }
+                className="w-full p-3 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                required
+              />
+            </div>
 
-            <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Question Text</label>
-                <textarea
-                  rows={2}
-                  value={editingQuestion.text}
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Topic
+                </label>
+                <input
+                  type="text"
+                  value={editingQuestion.topicDisplay || editingQuestion.topic}
                   onChange={(e) =>
-                    setEditingQuestion({ ...editingQuestion, text: e.target.value })
+                    setEditingQuestion({ ...editingQuestion, topic: e.target.value })
                   }
-                  className="w-full p-3 bg-slate-50 border rounded-xl text-sm"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white"
+                  required
                 />
               </div>
+              <div>
+                <CustomDropdown
+                  label="Difficulty"
+                  value={editingQuestion.difficulty}
+                  onChange={(e) =>
+                    setEditingQuestion({ ...editingQuestion, difficulty: e.target.value })
+                  }
+                  options={difficultyOptions}
+                />
+              </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Topic</label>
+            {/* Options */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Options (Click radio to mark correct answer)
+              </label>
+              {editingQuestion.options.map((opt, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="modalCorrectOption"
+                    checked={editingQuestion.correctIndex === idx}
+                    onChange={() =>
+                      setEditingQuestion({ ...editingQuestion, correctIndex: idx })
+                    }
+                    className="accent-brand-mint"
+                  />
                   <input
                     type="text"
-                    value={editingQuestion.topicDisplay || editingQuestion.topic}
-                    onChange={(e) =>
-                      setEditingQuestion({ ...editingQuestion, topic: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"
+                    value={opt}
+                    onChange={(e) => {
+                      const updated = [...editingQuestion.options];
+                      updated[idx] = e.target.value;
+                      setEditingQuestion({ ...editingQuestion, options: updated });
+                    }}
+                    className="flex-1 px-3 py-2 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl text-sm text-slate-900 dark:text-white"
+                    required
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Difficulty</label>
-                  <select
-                    value={editingQuestion.difficulty}
-                    onChange={(e) =>
-                      setEditingQuestion({ ...editingQuestion, difficulty: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"
-                  >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                  </select>
-                </div>
-              </div>
+              ))}
+            </div>
 
-              {/* Options */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700">Options & Correct Answer</label>
-                {editingQuestion.options.map((opt, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="modEditRadio"
-                      checked={editingQuestion.correctIndex === i}
-                      onChange={() =>
-                        setEditingQuestion({ ...editingQuestion, correctIndex: i })
-                      }
-                    />
-                    <input
-                      type="text"
-                      value={opt}
-                      onChange={(e) => {
-                        const newOpts = [...editingQuestion.options];
-                        newOpts[i] = e.target.value;
-                        setEditingQuestion({ ...editingQuestion, options: newOpts });
-                      }}
-                      className="flex-1 px-3 py-2 bg-slate-50 border rounded-xl text-xs"
-                    />
-                  </div>
-                ))}
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Explanation
+              </label>
+              <textarea
+                rows={2}
+                value={editingQuestion.explanation || ''}
+                onChange={(e) =>
+                  setEditingQuestion({ ...editingQuestion, explanation: e.target.value })
+                }
+                className="w-full p-3 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white"
+              />
+            </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Explanation</label>
-                <textarea
-                  rows={2}
-                  value={editingQuestion.explanation || ''}
-                  onChange={(e) =>
-                    setEditingQuestion({ ...editingQuestion, explanation: e.target.value })
-                  }
-                  className="w-full p-3 bg-slate-50 border rounded-xl text-xs"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setEditingQuestion(null)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingEdit}
-                  className="px-5 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-500/20 disabled:opacity-50"
-                >
-                  {savingEdit ? 'Saving...' : 'Save & Close'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <div className="flex justify-end gap-2 pt-3">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => setEditingQuestion(null)}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit" loading={savingEdit}>
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 };
 
 export default ModerationQueue;
-

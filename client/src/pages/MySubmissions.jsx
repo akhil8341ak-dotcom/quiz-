@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import DifficultyBadge from '../components/DifficultyBadge';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Modal } from '../components/ui/Modal';
+import { CustomDropdown } from '../components/ui/CustomDropdown';
+import { CardSkeleton } from '../components/ui/Skeleton';
+import { EmptyState } from '../components/ui/EmptyState';
 import {
   FileCheck,
   Clock,
@@ -11,9 +19,8 @@ import {
   AlertCircle,
   Trash2,
   Edit3,
-  Loader2,
   PlusCircle,
-  X,
+  MessageSquare,
 } from 'lucide-react';
 
 const MySubmissions = () => {
@@ -77,37 +84,41 @@ const MySubmissions = () => {
     }
   };
 
+  const difficultyOptions = [
+    { value: 'easy', label: 'Easy' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'hard', label: 'Hard' },
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            My Submissions
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
+            My Question Submissions
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-dark-textMuted mt-1">
             Track questions you contributed, review moderator feedback, or update pending items
           </p>
         </div>
-        <Link
-          to="/submit"
-          className="tap-target px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/20 inline-flex items-center gap-2 self-start transition"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Submit Another
+        <Link to="/submit">
+          <Button variant="primary" icon={<PlusCircle className="w-4 h-4" />}>
+            Submit Another
+          </Button>
         </Link>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-dark-border pb-2 overflow-x-auto">
         {['', 'pending', 'approved', 'rejected'].map((st) => (
           <button
             key={st}
             onClick={() => setStatusFilter(st)}
-            className={`tap-target px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition ${
+            className={`tap-target px-4 py-2 rounded-2xl text-xs font-bold capitalize transition ${
               statusFilter === st
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-card'
             }`}
           >
             {st || 'All'} Submissions
@@ -117,238 +128,221 @@ const MySubmissions = () => {
 
       {/* Submissions List */}
       {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-          <p className="text-sm font-semibold text-slate-500">Loading your questions...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       ) : questions.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-3xl border border-slate-200 text-slate-500">
-          <FileCheck className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-          <p className="font-bold text-base text-slate-700">No submissions found</p>
-          <p className="text-xs text-slate-400 mt-1">
-            {statusFilter
+        <EmptyState
+          icon="📝"
+          title="No submissions found"
+          description={
+            statusFilter
               ? `You don't have any ${statusFilter} questions right now.`
-              : 'You haven’t submitted any questions yet. Contribute your first question!'}
-          </p>
-          <Link
-            to="/submit"
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl tap-target"
-          >
-            <PlusCircle className="w-3.5 h-3.5" /> Submit a Question
-          </Link>
-        </div>
+              : "You haven't contributed any questions yet. Help expand the quiz bank!"
+          }
+          actionLabel="Submit a Question"
+          onAction={() => {}}
+        />
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {questions.map((q) => {
-            const isPending = q.status === 'pending';
-            const isApproved = q.status === 'approved';
-            const isRejected = q.status === 'rejected';
+            const canEditOrDelete = q.status === 'pending';
 
             return (
-              <div
-                key={q._id}
-                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-start justify-between gap-4"
-              >
-                <div className="space-y-3 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {/* Status Chip */}
-                    {isPending && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        <Clock className="w-3 h-3 text-amber-500" /> Pending Review
-                      </span>
-                    )}
-                    {isApproved && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" /> Approved
-                      </span>
-                    )}
-                    {isRejected && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                        <XCircle className="w-3 h-3 text-rose-500" /> Rejected
-                      </span>
-                    )}
+              <Card key={q._id} hover className="flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={q.status}>
+                        {q.status.charAt(0).toUpperCase() + q.status.slice(1)}
+                      </Badge>
+                      <DifficultyBadge difficulty={q.difficulty} />
+                    </div>
 
-                    <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                      {q.topicDisplay}
-                    </span>
-                    <DifficultyBadge difficulty={q.difficulty} />
+                    {canEditOrDelete && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setEditingQuestion({ ...q })}
+                          className="p-1.5 text-slate-400 hover:text-brand-500 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-card transition tap-target"
+                          title="Edit pending submission"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(q._id)}
+                          className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition tap-target"
+                          title="Delete submission"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  <h3 className="font-bold text-slate-900 text-base">{q.text}</h3>
+                  <div className="text-xs font-bold text-slate-400 dark:text-dark-textMuted uppercase tracking-wider mb-1">
+                    {q.topicDisplay}
+                  </div>
+                  <h3 className="font-heading font-bold text-slate-900 dark:text-white text-base mb-3 leading-snug">
+                    {q.text}
+                  </h3>
 
                   {/* Options */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="space-y-1.5 mb-4">
                     {q.options.map((opt, i) => (
                       <div
                         key={i}
-                        className={`p-2 rounded-lg border ${
-                          q.correctIndex === i
-                            ? 'bg-emerald-50/70 border-emerald-300 text-emerald-900 font-semibold'
-                            : 'bg-slate-50 border-slate-100 text-slate-600'
+                        className={`text-xs p-2.5 rounded-xl border flex items-center gap-2 ${
+                          i === q.correctIndex
+                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-brand-mint text-emerald-800 dark:text-emerald-300 font-bold'
+                            : 'bg-slate-50 dark:bg-dark-card/60 border-slate-100 dark:border-dark-border text-slate-600 dark:text-slate-300'
                         }`}
                       >
-                        <span className="font-bold mr-1.5">{String.fromCharCode(65 + i)}.</span>
-                        {opt}
-                        {q.correctIndex === i && (
-                          <span className="ml-1 text-[10px] text-emerald-700 font-bold">(Correct)</span>
-                        )}
+                        <span className="w-5 h-5 rounded-md bg-white dark:bg-dark-surface border text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {String.fromCharCode(65 + i)}
+                        </span>
+                        <span className="truncate">{opt}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Moderator Note */}
-                  {q.moderationNote && (
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold text-purple-900">Moderator Note:</span>{' '}
-                        <span>{q.moderationNote}</span>
+                  {/* Moderator Feedback note if present */}
+                  {q.moderatorNote && (
+                    <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl text-xs space-y-1 text-amber-900 dark:text-amber-200 mb-3">
+                      <div className="font-bold flex items-center gap-1.5">
+                        <MessageSquare className="w-3.5 h-3.5 text-brand-yellow" />
+                        Moderator Note:
                       </div>
+                      <p>{q.moderatorNote}</p>
                     </div>
                   )}
                 </div>
 
-                {/* Actions for Pending questions */}
-                {isPending && (
-                  <div className="flex sm:flex-col gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => setEditingQuestion({ ...q })}
-                      className="tap-target px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(q._id)}
-                      className="tap-target px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Delete
-                    </button>
-                  </div>
-                )}
-              </div>
+                <div className="pt-3 border-t border-slate-100 dark:border-dark-border flex items-center justify-between text-[11px] text-slate-400 dark:text-dark-textMuted">
+                  <span>Submitted {new Date(q.createdAt).toLocaleDateString()}</span>
+                  {q.reviewedBy && <span>Reviewed by Faculty</span>}
+                </div>
+              </Card>
             );
           })}
         </div>
       )}
 
-      {/* Edit Pending Question Modal */}
-      {editingQuestion && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white max-w-2xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-              <h3 className="text-lg font-bold text-slate-900">Edit Pending Question</h3>
-              <button
-                onClick={() => setEditingQuestion(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
+      {/* Edit Modal using UI Modal */}
+      <Modal
+        isOpen={Boolean(editingQuestion)}
+        onClose={() => setEditingQuestion(null)}
+        title="Edit Pending Question"
+        maxWidth="max-w-2xl"
+      >
+        {editingQuestion && (
+          <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Question Text
+              </label>
+              <textarea
+                rows={3}
+                value={editingQuestion.text}
+                onChange={(e) =>
+                  setEditingQuestion({ ...editingQuestion, text: e.target.value })
+                }
+                className="w-full p-3 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                required
+              />
             </div>
 
-            <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Question Text</label>
-                <textarea
-                  rows={2}
-                  value={editingQuestion.text}
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Topic
+                </label>
+                <input
+                  type="text"
+                  value={editingQuestion.topicDisplay || editingQuestion.topic}
                   onChange={(e) =>
-                    setEditingQuestion({ ...editingQuestion, text: e.target.value })
+                    setEditingQuestion({ ...editingQuestion, topic: e.target.value })
                   }
-                  className="w-full p-3 bg-slate-50 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white"
+                  required
                 />
               </div>
+              <div>
+                <CustomDropdown
+                  label="Difficulty"
+                  value={editingQuestion.difficulty}
+                  onChange={(e) =>
+                    setEditingQuestion({ ...editingQuestion, difficulty: e.target.value })
+                  }
+                  options={difficultyOptions}
+                />
+              </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Topic</label>
+            {/* Options */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Options (Click radio for correct answer)
+              </label>
+              {editingQuestion.options.map((opt, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="modalCorrectOption"
+                    checked={editingQuestion.correctIndex === idx}
+                    onChange={() =>
+                      setEditingQuestion({ ...editingQuestion, correctIndex: idx })
+                    }
+                    className="accent-brand-mint"
+                  />
                   <input
                     type="text"
-                    value={editingQuestion.topicDisplay || editingQuestion.topic}
-                    onChange={(e) =>
-                      setEditingQuestion({ ...editingQuestion, topic: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"
+                    value={opt}
+                    onChange={(e) => {
+                      const updated = [...editingQuestion.options];
+                      updated[idx] = e.target.value;
+                      setEditingQuestion({ ...editingQuestion, options: updated });
+                    }}
+                    className="flex-1 px-3 py-2 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl text-sm text-slate-900 dark:text-white"
+                    required
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Difficulty</label>
-                  <select
-                    value={editingQuestion.difficulty}
-                    onChange={(e) =>
-                      setEditingQuestion({ ...editingQuestion, difficulty: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"
-                  >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                  </select>
-                </div>
-              </div>
+              ))}
+            </div>
 
-              {/* Options */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700">Options & Correct Answer</label>
-                {editingQuestion.options.map((opt, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="modalCorrectRadio"
-                      checked={editingQuestion.correctIndex === i}
-                      onChange={() =>
-                        setEditingQuestion({ ...editingQuestion, correctIndex: i })
-                      }
-                      className="cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={opt}
-                      onChange={(e) => {
-                        const newOpts = [...editingQuestion.options];
-                        newOpts[i] = e.target.value;
-                        setEditingQuestion({ ...editingQuestion, options: newOpts });
-                      }}
-                      className="flex-1 px-3 py-2 bg-slate-50 border rounded-xl text-xs"
-                    />
-                  </div>
-                ))}
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Explanation
+              </label>
+              <textarea
+                rows={2}
+                value={editingQuestion.explanation || ''}
+                onChange={(e) =>
+                  setEditingQuestion({ ...editingQuestion, explanation: e.target.value })
+                }
+                className="w-full p-3 bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-sm text-slate-900 dark:text-white"
+              />
+            </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Explanation</label>
-                <textarea
-                  rows={2}
-                  value={editingQuestion.explanation || ''}
-                  onChange={(e) =>
-                    setEditingQuestion({ ...editingQuestion, explanation: e.target.value })
-                  }
-                  className="w-full p-3 bg-slate-50 border rounded-xl text-xs"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setEditingQuestion(null)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingEdit}
-                  className="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 disabled:opacity-50"
-                >
-                  {savingEdit ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <div className="flex justify-end gap-2 pt-3">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => setEditingQuestion(null)}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit" loading={savingEdit}>
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 };
 
 export default MySubmissions;
-
