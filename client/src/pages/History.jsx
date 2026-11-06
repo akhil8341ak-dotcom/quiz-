@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Modal } from '../components/ui/Modal';
+import { EmptyState } from '../components/ui/EmptyState';
+import { CardSkeleton } from '../components/ui/Skeleton';
 import {
   History as HistoryIcon,
   Clock,
@@ -9,11 +15,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  X,
-  Loader2,
   CheckCircle2,
   XCircle,
-  HelpCircle,
+  Sparkles,
 } from 'lucide-react';
 
 const History = () => {
@@ -67,42 +71,36 @@ const History = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
           Attempt History
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-sm text-slate-500 dark:text-dark-textMuted mt-1">
           Review your past test scores, time investments, and question-level outcomes
         </p>
       </div>
 
       {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-          <p className="text-sm font-semibold text-slate-500">Retrieving test logs...</p>
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       ) : attempts.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-3xl border border-slate-200 text-slate-500">
-          <HistoryIcon className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-          <p className="font-bold text-base text-slate-700">No past attempts found</p>
-          <p className="text-xs text-slate-400 mt-1">
-            Complete your first quiz to review scores and track improvement here!
-          </p>
-          <Link
-            to="/quizzes"
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl tap-target"
-          >
-            Browse Quizzes
-          </Link>
-        </div>
+        <EmptyState
+          icon="📊"
+          title="No past attempts recorded"
+          description="Complete your first quiz to review scores, track improvement, and diagnose weak topics!"
+          actionLabel="Browse Quizzes"
+          onAction={() => {}}
+        />
       ) : (
         <div className="space-y-4">
           {/* Desktop Table View */}
-          <div className="hidden md:block bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="hidden md:block bg-white dark:bg-dark-surface rounded-3xl border border-slate-200 dark:border-dark-border shadow-sm overflow-hidden">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold text-xs uppercase tracking-wider">
+              <thead className="bg-slate-50/80 dark:bg-dark-card border-b border-slate-200 dark:border-dark-border text-slate-500 dark:text-dark-textMuted font-bold text-xs uppercase tracking-wider">
                 <tr>
                   <th className="py-3.5 px-6">Quiz Title</th>
                   <th className="py-3.5 px-6">Date</th>
@@ -112,46 +110,51 @@ const History = () => {
                   <th className="py-3.5 px-6 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium">
+              <tbody className="divide-y divide-slate-100 dark:divide-dark-border font-medium">
                 {attempts.map((att) => {
                   const isPassing = att.percentage >= 60;
                   return (
-                    <tr key={att._id} className="hover:bg-slate-50/60 transition">
-                      <td className="py-4 px-6 font-bold text-slate-900">
+                    <tr
+                      key={att._id}
+                      className="hover:bg-slate-50/60 dark:hover:bg-dark-card/60 transition"
+                    >
+                      <td className="py-4 px-6 font-heading font-bold text-slate-900 dark:text-white">
                         {att.quiz?.title || 'Practice Quiz'}
                       </td>
-                      <td className="py-4 px-6 text-slate-500 text-xs">
+                      <td className="py-4 px-6 text-slate-500 dark:text-dark-textMuted text-xs">
                         {new Date(att.createdAt).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric',
                         })}
                       </td>
-                      <td className="py-4 px-6 text-slate-700">
+                      <td className="py-4 px-6 text-slate-700 dark:text-slate-300">
                         {att.score} / {att.total}
                       </td>
                       <td className="py-4 px-6">
                         <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
                             isPassing
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-rose-100 text-rose-800'
+                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                           }`}
                         >
                           {att.percentage}%
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-slate-500 text-xs flex items-center gap-1">
+                      <td className="py-4 px-6 text-slate-500 dark:text-dark-textMuted text-xs flex items-center gap-1.5 pt-5">
                         <Clock className="w-3.5 h-3.5 text-slate-400" />
                         {formatTimer(att.durationSeconds)}
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <button
+                        <Button
+                          variant="secondary"
+                          size="sm"
                           onClick={() => handleOpenReview(att._id)}
-                          className="tap-target px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl inline-flex items-center gap-1.5 transition"
+                          icon={<Eye className="w-3.5 h-3.5 text-brand-500" />}
                         >
-                          <Eye className="w-3.5 h-3.5" /> Review
-                        </button>
+                          Review
+                        </Button>
                       </td>
                     </tr>
                   );
@@ -165,77 +168,80 @@ const History = () => {
             {attempts.map((att) => {
               const isPassing = att.percentage >= 60;
               return (
-                <div
-                  key={att._id}
-                  className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3"
-                >
+                <Card key={att._id} className="p-5 space-y-3">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-bold text-slate-900 text-sm">
+                    <h3 className="font-heading font-bold text-slate-900 dark:text-white text-sm">
                       {att.quiz?.title || 'Practice Quiz'}
                     </h3>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                         isPassing
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
+                          ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                          : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
                       }`}
                     >
                       {att.percentage}%
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 py-2 border-y border-slate-100">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-dark-textMuted py-2 border-y border-slate-100 dark:border-dark-border">
                     <div>
                       <span>Score: </span>
-                      <strong className="text-slate-800">
+                      <strong className="text-slate-800 dark:text-white">
                         {att.score} / {att.total}
                       </strong>
                     </div>
                     <div>
                       <span>Time: </span>
-                      <strong className="text-slate-800">
+                      <strong className="text-slate-800 dark:text-white">
                         {formatTimer(att.durationSeconds)}
                       </strong>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between text-xs pt-1">
-                    <span className="text-slate-400">
+                    <span className="text-slate-400 dark:text-dark-textMuted">
                       {new Date(att.createdAt).toLocaleDateString()}
                     </span>
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleOpenReview(att._id)}
-                      className="tap-target px-4 py-2 bg-blue-50 text-blue-700 rounded-xl font-bold flex items-center gap-1"
+                      icon={<Eye className="w-3.5 h-3.5 text-brand-500" />}
                     >
-                      <Eye className="w-3.5 h-3.5" /> Review Attempt
-                    </button>
+                      Review Attempt
+                    </Button>
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-200">
-              <span className="text-xs text-slate-500">
-                Page {page} of {totalPages}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-dark-border">
+              <span className="text-xs font-bold text-slate-500 dark:text-dark-textMuted">
+                Page {page} of {totalPages} ({totalAttempts} attempts)
               </span>
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 disabled:opacity-30 tap-target"
+                  icon={<ChevronLeft className="w-4 h-4" />}
                 >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
+                  Previous
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 disabled:opacity-30 tap-target"
+                  icon={<ChevronRight className="w-4 h-4" />}
                 >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                  Next
+                </Button>
               </div>
             </div>
           )}
@@ -243,31 +249,37 @@ const History = () => {
       )}
 
       {/* Review Attempt Modal */}
-      {reviewAttempt && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white max-w-3xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-6">
-            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+      <Modal
+        isOpen={Boolean(reviewAttempt)}
+        onClose={() => setReviewAttempt(null)}
+        title="Attempt Review"
+        maxWidth="max-w-3xl"
+      >
+        {reviewAttempt && (
+          <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Attempt Review
-                </span>
-                <h3 className="text-xl font-extrabold text-slate-900 mt-0.5">
+                <h3 className="font-heading text-lg font-bold text-slate-900 dark:text-white">
                   {reviewAttempt.quiz?.title || 'Practice Quiz'}
                 </h3>
-                <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
-                  <span className="font-bold text-slate-800">
+                <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-dark-textMuted">
+                  <span className="font-bold text-slate-800 dark:text-white">
                     Score: {reviewAttempt.score} / {reviewAttempt.total} ({reviewAttempt.percentage}%)
                   </span>
                   <span>&bull;</span>
                   <span>Duration: {formatTimer(reviewAttempt.durationSeconds)}</span>
                 </div>
               </div>
-              <button
-                onClick={() => setReviewAttempt(null)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 tap-target"
+
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold self-start sm:self-auto ${
+                  reviewAttempt.percentage >= 60
+                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                    : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
+                }`}
               >
-                <X className="w-5 h-5" />
-              </button>
+                {reviewAttempt.percentage >= 60 ? 'Passed' : 'Needs Review'}
+              </span>
             </div>
 
             {/* Questions list */}
@@ -276,7 +288,10 @@ const History = () => {
                 const q = ans.question;
                 if (!q) {
                   return (
-                    <div key={i} className="p-4 bg-slate-50 rounded-xl text-xs text-slate-500">
+                    <div
+                      key={i}
+                      className="p-4 bg-slate-50 dark:bg-dark-card rounded-2xl text-xs text-slate-500"
+                    >
                       Question data unavailable
                     </div>
                   );
@@ -287,35 +302,42 @@ const History = () => {
                     key={i}
                     className={`p-5 rounded-2xl border ${
                       ans.isCorrect
-                        ? 'bg-emerald-50/40 border-emerald-200'
-                        : 'bg-rose-50/40 border-rose-200'
+                        ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/60'
+                        : 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-slate-500">Question {i + 1}</span>
+                      <span className="text-xs font-bold text-slate-500 dark:text-dark-textMuted">
+                        Question {i + 1}
+                      </span>
                       {ans.isCorrect ? (
-                        <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
+                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5" /> Correct
                         </span>
                       ) : (
-                        <span className="text-xs font-bold text-rose-700 flex items-center gap-1">
+                        <span className="text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1">
                           <XCircle className="w-3.5 h-3.5" /> Incorrect
                         </span>
                       )}
                     </div>
 
-                    <p className="font-bold text-slate-900 text-sm mb-3">{q.text}</p>
+                    <p className="font-heading font-bold text-slate-900 dark:text-white text-sm mb-3">
+                      {q.text}
+                    </p>
 
                     <div className="space-y-1.5 text-xs">
                       {q.options?.map((opt, optIdx) => {
                         const isChosen = ans.selectedIndex === optIdx;
                         const isCorrectOpt = q.correctIndex === optIdx;
 
-                        let style = 'bg-white border-slate-200 text-slate-600';
+                        let style =
+                          'bg-white dark:bg-dark-card border-slate-200 dark:border-dark-border text-slate-600 dark:text-slate-300';
                         if (isCorrectOpt) {
-                          style = 'bg-emerald-100 border-emerald-300 text-emerald-950 font-bold';
+                          style =
+                            'bg-emerald-100 dark:bg-emerald-950/60 border-brand-mint text-emerald-950 dark:text-emerald-200 font-bold';
                         } else if (isChosen && !ans.isCorrect) {
-                          style = 'bg-rose-100 border-rose-300 text-rose-950 font-bold';
+                          style =
+                            'bg-rose-100 dark:bg-rose-950/60 border-rose-300 text-rose-950 dark:text-rose-200 font-bold';
                         }
 
                         return (
@@ -324,16 +346,18 @@ const History = () => {
                             className={`p-2.5 rounded-xl border flex items-center justify-between ${style}`}
                           >
                             <span>
-                              <strong className="mr-1.5">{String.fromCharCode(65 + optIdx)}.</strong>
+                              <strong className="mr-1.5">
+                                {String.fromCharCode(65 + optIdx)}.
+                              </strong>
                               {opt}
                             </span>
                             {isCorrectOpt && (
-                              <span className="text-emerald-700 font-bold text-[10px]">
+                              <span className="text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
                                 Correct Answer
                               </span>
                             )}
                             {isChosen && !isCorrectOpt && (
-                              <span className="text-rose-700 font-bold text-[10px]">
+                              <span className="text-rose-700 dark:text-rose-300 font-bold text-[10px]">
                                 Your Choice
                               </span>
                             )}
@@ -343,8 +367,10 @@ const History = () => {
                     </div>
 
                     {q.explanation && (
-                      <div className="mt-3 p-3 bg-blue-50/60 border border-blue-100 rounded-xl text-xs text-blue-900 leading-relaxed">
-                        <strong className="block mb-0.5">Explanation:</strong>
+                      <div className="mt-3 p-3 bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 rounded-xl text-xs text-brand-900 dark:text-brand-200 leading-relaxed">
+                        <strong className="block mb-0.5 text-brand-700 dark:text-brand-300">
+                          Explanation:
+                        </strong>
                         {q.explanation}
                       </div>
                     )}
@@ -354,19 +380,18 @@ const History = () => {
             </div>
 
             <div className="text-right pt-2">
-              <button
+              <Button
+                variant="primary"
                 onClick={() => setReviewAttempt(null)}
-                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl tap-target"
               >
                 Close Review
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 };
 
 export default History;
-
