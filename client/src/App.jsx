@@ -27,7 +27,15 @@ function App() {
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
-          <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900">
+          <div className="relative min-h-screen flex flex-col font-sans text-slate-900 selection:bg-indigo-500 selection:text-white">
+            {/* Aurora Ambient Background */}
+            <div className="aurora-bg" />
+            
+            {/* Floating ambient glow accents */}
+            <div className="fixed top-12 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none animate-float -z-10" />
+            <div className="fixed bottom-24 right-1/4 w-[30rem] h-[30rem] bg-rose-500/10 rounded-full blur-3xl pointer-events-none animate-float -z-10" style={{ animationDelay: '-6s' }} />
+            <div className="fixed top-1/2 right-12 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none animate-float -z-10" style={{ animationDelay: '-3s' }} />
+
             <Navbar />
             <main className="flex-1">
               <Routes>
@@ -132,4 +140,3 @@ function App() {
 }
 
 export default App;
-

@@ -10,8 +10,9 @@ import {
   HelpCircle,
   Trash2,
   Loader2,
-  Clock,
   BookOpen,
+  Zap,
+  Flame,
 } from 'lucide-react';
 
 const Quizzes = () => {
@@ -50,11 +51,14 @@ const Quizzes = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in duration-300">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <span className="text-xs font-black uppercase tracking-wider text-indigo-600 block mb-1">
+            Practice Library
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Quizzes & Practice Tests
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -63,7 +67,7 @@ const Quizzes = () => {
         </div>
         <Link
           to="/create-quiz"
-          className="tap-target px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/20 inline-flex items-center gap-2 self-start transition"
+          className="tap-target px-5 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-500/25 inline-flex items-center gap-2 self-start transition hover:-translate-y-0.5"
         >
           <PlusCircle className="w-4 h-4" />
           Create New Quiz
@@ -72,11 +76,11 @@ const Quizzes = () => {
 
       {loading ? (
         <div className="py-20 flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-          <p className="text-sm font-semibold text-slate-500">Loading quiz library...</p>
+          <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
+          <p className="text-xs font-black uppercase tracking-wider text-slate-500">Loading quiz bank...</p>
         </div>
       ) : quizzes.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-3xl border border-slate-200 text-slate-500">
+        <div className="bg-white/90 p-12 text-center rounded-3xl border border-slate-200 text-slate-500">
           <Sparkles className="w-12 h-12 mx-auto text-amber-400 mb-2" />
           <p className="font-bold text-base text-slate-700">No quizzes available yet</p>
           <p className="text-xs text-slate-400 mt-1">
@@ -84,13 +88,13 @@ const Quizzes = () => {
           </p>
           <Link
             to="/create-quiz"
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl tap-target"
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-bold rounded-xl tap-target shadow-md shadow-indigo-500/20"
           >
             <PlusCircle className="w-3.5 h-3.5" /> Build a Quiz
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quizzes.map((quiz) => {
             const isOwner = user && quiz.createdBy && quiz.createdBy._id === user._id;
             const canDelete = isOwner || isModerator;
@@ -98,17 +102,17 @@ const Quizzes = () => {
             return (
               <div
                 key={quiz._id}
-                className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between"
+                className="glass-card-energetic p-6 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg">
+                    <span className="text-xs font-black bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700 border border-indigo-200/60 px-3 py-1 rounded-xl shadow-xs">
                       {quiz.questionCount} Questions
                     </span>
                     {canDelete && (
                       <button
                         onClick={() => handleDeleteQuiz(quiz._id)}
-                        className="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition"
+                        className="text-slate-400 hover:text-rose-600 p-1.5 rounded-xl hover:bg-rose-50 transition"
                         title="Delete quiz"
                         aria-label="Delete quiz"
                       >
@@ -117,20 +121,20 @@ const Quizzes = () => {
                     )}
                   </div>
 
-                  <h3 className="font-extrabold text-slate-900 text-base mb-1.5 leading-snug">
+                  <h3 className="font-black text-slate-900 text-base mb-1.5 leading-snug tracking-tight">
                     {quiz.title}
                   </h3>
-                  <p className="text-xs text-slate-600 line-clamp-2 mb-4">
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-4 font-medium">
                     {quiz.description || 'Custom generated practice quiz.'}
                   </p>
 
                   {/* Topics Covered */}
                   {quiz.topics && quiz.topics.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-4">
+                    <div className="flex flex-wrap gap-1.5 mb-5">
                       {quiz.topics.map((t, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] font-semibold rounded-md capitalize"
+                          className="px-2.5 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-lg capitalize border border-slate-200/60"
                         >
                           {t}
                         </span>
@@ -140,12 +144,12 @@ const Quizzes = () => {
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px] text-slate-400 font-medium truncate max-w-[140px]">
                     By {quiz.createdBy?.name || 'Faculty / Peer'}
                   </span>
                   <Link
                     to={`/take-quiz/${quiz._id}`}
-                    className="tap-target px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 inline-flex items-center gap-1.5 transition"
+                    className="tap-target px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-xs rounded-xl shadow-md shadow-indigo-600/20 inline-flex items-center gap-1.5 transition hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" /> Take Quiz
                   </Link>
@@ -160,4 +164,3 @@ const Quizzes = () => {
 };
 
 export default Quizzes;
-

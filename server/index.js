@@ -68,7 +68,12 @@ app.use('/api/analytics', require('./routes/analytics'));
 
 // Serve frontend in production
 const clientDistPath = path.resolve(__dirname, '../client/dist');
-app.use(express.static(clientDistPath));
+app.use(
+  express.static(clientDistPath, {
+    maxAge: 0,
+    etag: false,
+  })
+);
 
 // API 404 handler (matches any /api route not caught above)
 app.all('/api/*', notFound);
