@@ -4,8 +4,8 @@
   "description": "QuizCraft - Peer-created practice quiz bank with weak topics analysis",
   "private": true,
   "scripts": {
-    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
-    "build": "npm install --prefix client && npm run build --prefix client",
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client --include=dev",
+    "build": "npm install --prefix client --include=dev && npm run build --prefix client",
     "start": "node server/index.js",
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "seed": "node server/seed/seed.js"
