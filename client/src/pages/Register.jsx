@@ -49,33 +49,33 @@ const Register = () => {
 
   return (
     <div className="min-h-[85vh] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-500 text-white items-center justify-center shadow-lg shadow-blue-500/20 mb-3">
-            <Brain className="w-8 h-8" />
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex w-16 h-16 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white items-center justify-center shadow-xl shadow-blue-500/25 ring-4 ring-blue-500/10 mb-2">
+            <Brain className="w-9 h-9" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Create your Student Account
-          </h2>
-          <p className="text-sm text-slate-600 mt-2">
-            Practice questions, track history, and identify weak topics
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Create Student Account
+          </h1>
+          <p className="text-sm text-slate-500 max-w-xs mx-auto">
+            Practice questions, track history, and diagnose weak topics
           </p>
         </div>
 
-        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/80">
+        <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-9 rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/90 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                 Full Name
               </label>
               <div className="relative">
-                <User className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Alex Johnson"
-                  className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm focus:outline-none focus:ring-2 transition ${
+                  className={`w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-2xl text-sm focus:outline-none focus:ring-2 transition ${
                     errors.name
                       ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500'
                       : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
@@ -83,22 +83,22 @@ const Register = () => {
                 />
               </div>
               {errors.name && (
-                <p className="mt-1 text-xs text-rose-600 font-medium">{errors.name}</p>
+                <p className="mt-1 text-xs text-rose-600 font-bold">{errors.name}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                 Email address
               </label>
               <div className="relative">
-                <Mail className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="alex@university.edu"
-                  className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm focus:outline-none focus:ring-2 transition ${
+                  className={`w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-2xl text-sm focus:outline-none focus:ring-2 transition ${
                     errors.email
                       ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500'
                       : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
@@ -106,22 +106,22 @@ const Register = () => {
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-xs text-rose-600 font-medium">{errors.email}</p>
+                <p className="mt-1 text-xs text-rose-600 font-bold">{errors.email}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                 Password (min 8 characters)
               </label>
               <div className="relative">
-                <Lock className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 8 characters"
-                  className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm focus:outline-none focus:ring-2 transition ${
+                  className={`w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-2xl text-sm focus:outline-none focus:ring-2 transition ${
                     errors.password
                       ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500'
                       : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
@@ -129,19 +129,19 @@ const Register = () => {
                 />
               </div>
               {errors.password && (
-                <p className="mt-1 text-xs text-rose-600 font-medium">{errors.password}</p>
+                <p className="mt-1 text-xs text-rose-600 font-bold">{errors.password}</p>
               )}
             </div>
 
-            <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-xs text-blue-800 flex items-start gap-2">
+            <div className="p-3 bg-blue-50/80 border border-blue-100 rounded-2xl text-xs text-blue-900 flex items-start gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-              <span>Public registration creates a student profile. Submit questions for moderation and take quizzes freely!</span>
+              <span>Public accounts register as students. Submit questions for moderation and take quizzes freely!</span>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 transition disabled:opacity-50 tap-target"
+              className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-black text-sm shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 tap-target"
             >
               {loading ? (
                 <>
@@ -150,7 +150,7 @@ const Register = () => {
                 </>
               ) : (
                 <>
-                  Get Started
+                  Create Account
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -158,9 +158,9 @@ const Register = () => {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
+        <p className="text-center text-sm text-slate-500">
           Already have an account?{' '}
-          <Link to="/login" className="font-bold text-blue-600 hover:text-blue-700 underline">
+          <Link to="/login" className="font-extrabold text-blue-600 hover:text-blue-700 underline">
             Sign in
           </Link>
         </p>
